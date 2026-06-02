@@ -20,6 +20,9 @@ const books = [
  */
 function getTitlesByCategory(books, category) {
   // 여기를 작성하세요
+  return books
+    .filter((book) => book.category === category)
+    .map((book) => book.title);
 }
 
 /**
@@ -32,6 +35,9 @@ function getTitlesByCategory(books, category) {
  */
 function getTotalPriceAbove(books, threshold) {
   // 여기를 작성하세요
+  return books
+    .filter((book) => book.price >= threshold)
+    .reduce((sum, book) => sum + book.price, 0);
 }
 
 /**
@@ -43,6 +49,7 @@ function getTotalPriceAbove(books, threshold) {
  */
 function isAllSameCategory(books, category) {
   // 여기를 작성하세요
+  return books.every((book) => book.category === category);
 }
 
 // ─────────────────────────────────────────────
@@ -59,6 +66,8 @@ function isAllSameCategory(books, category) {
  */
 function formatBookLabel(book) {
   // 여기를 작성하세요
+  const { title, author } = book;
+  return `${title} - ${author}`;
 }
 
 /**
@@ -70,6 +79,8 @@ function formatBookLabel(book) {
  */
 function splitFirstAndRest(books) {
   // 여기를 작성하세요
+  const [first, ...rest] = books;
+  return { first, rest };
 }
 
 /**
@@ -82,6 +93,8 @@ function splitFirstAndRest(books) {
  */
 function omitPrice(book) {
   // 여기를 작성하세요
+  const { price, ...rest } = book;
+  return rest;
 }
 
 // ─────────────────────────────────────────────
@@ -97,6 +110,14 @@ function omitPrice(book) {
  */
 function groupByCategory(books) {
   // 여기를 작성하세요
+  const categoryMap = new Map();
+  books.forEach((book) => {
+    if (!categoryMap.has(book.category)) {
+      categoryMap.set(book.category, []);
+    }
+    categoryMap.get(book.category).push(book.title);
+  });
+  return categoryMap;
 }
 
 /**
@@ -109,6 +130,8 @@ function groupByCategory(books) {
  */
 function intersection(arrA, arrB) {
   // 여기를 작성하세요
+  const setB = new Set(arrB);
+  return [...new Set(arrA.filter((item) => setB.has(item)))];
 }
 
 /**
@@ -119,6 +142,8 @@ function intersection(arrA, arrB) {
  * unique([1, 2, 2, 3]) // → [1, 2, 3]
  */
 function unique(arr) {
+  // 여기를 작성하세요
+  return [...new Set(arr)];
   // 여기를 작성하세요
 }
 
@@ -135,6 +160,9 @@ function unique(arr) {
  */
 function getOutOfStock(stock) {
   // 여기를 작성하세요
+  return Object.entries(stock)
+    .filter(([_, quantity]) => quantity === 0)
+    .map(([title, _]) => title);
 }
 
 /**
@@ -146,6 +174,8 @@ function getOutOfStock(stock) {
  */
 function getTotalStock(stock) {
   // 여기를 작성하세요
+  return Object.values(stock).reduce((sum, quantity) => sum + quantity, 0);
+
 }
 
 /**
@@ -157,6 +187,9 @@ function getTotalStock(stock) {
  */
 function removeNullish(obj) {
   // 여기를 작성하세요
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value != null)
+  );  
 }
 
 // ─────────────────────────────────────────────
@@ -175,6 +208,20 @@ function removeNullish(obj) {
  */
 function getAvgPriceByCategory(books) {
   // 여기를 작성하세요
+    const categoryData = books.reduce((acc, book) => {
+    if (!acc[book.category]) {
+      acc[book.category] = { sum: 0, count: 0 };
+    }
+    acc[book.category].sum += book.price;
+    acc[book.category].count += 1;
+    return acc;
+  }, {});
+
+  const avgPriceByCategory = {};
+  for (const category in categoryData) {
+    avgPriceByCategory[category] = categoryData[category].sum / categoryData[category].count;
+  }
+  return avgPriceByCategory;
 }
 
 /**
@@ -188,6 +235,7 @@ function getAvgPriceByCategory(books) {
  */
 function sortBy(books, key) {
   // 여기를 작성하세요
+  return [...books].sort((a, b) => a[key] - b[key]);
 }
 
 /**
@@ -203,6 +251,9 @@ function sortBy(books, key) {
  */
 function flattenCategories(categories) {
   // 여기를 작성하세요
+  return categories.flatMap((cat) =>
+    cat.books.map((book) => ({ ...book, category: cat.category }))
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -224,6 +275,12 @@ function flattenCategories(categories) {
  */
 function createBookIterator(books) {
   // 여기를 작성하세요
+  function* generator() {
+    for (const book of books) {
+      yield book;
+    }
+  }
+  return generator();
 }
 
 /**
@@ -237,6 +294,13 @@ function createBookIterator(books) {
  */
 function paginate(books, page, size) {
   // 여기를 작성하세요
+  const totalPages = Math.ceil(books.length / size);
+  if (page < 1 || page > totalPages) {
+    throw new Error("유효하지 않은 페이지 번호입니다.");
+  }
+  const startIndex = (page - 1) * size;
+  const data = books.slice(startIndex, startIndex + size);
+  return { data, totalPages, currentPage: page };
 }
 
 // ─────────────────────────────────────────────
